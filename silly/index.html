@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8" />
+		<link rel="icon" href=".img/logo.png" />
+		<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+		<title>61 欢乐多</title>
+		<link rel="stylesheet" type="text/css" href="css/iview.css">
+		<script type="text/javascript" src="js/vue.min.js"></script>
+		<script type="text/javascript" src="js/iview.min.js"></script>
+		<script type="text/javascript" src="js/messages.js"></script>
+		<style>
+			body{
+				background-color: rgba(55,55,55,.6);
+			}
+			body.imageClass{
+				background-image: url(img/timg.jpg);
+				background-size:100%;
+			}
+			.ivu-modal-wrap{
+				display: flex;
+				align-items: center;
+				justify-content: center;
+			}
+			.ivu-modal-wrap .ivu-modal {
+				top: 0;
+			}
+			[v-cloak] {
+				display: none;
+			}
+			.ivu-modal-body {
+				padding: 16px;
+				font-size: 12px;
+				line-height: 1.5;
+				text-align: center;
+				font-size: 1.2rem;
+				padding-top: 2rem;
+				padding-bottom: 2rem;
+			}
+		</style>
+	</head>
+	<body>
+		<div id="app">
+			<Modal v-cloak :title="current.title" v-model="modal" :scrollable="false" :draggable="false" :mask-closable="false" :closable="false"
+			 class-name="vertical-center-modal" @on-ok="okEvent($event)" @on-cancel="cancleEvent($event)">
+				<p>{{current.message}}</p>
+				<div slot="footer" class="my-footer">
+                  <i-button type="primary" size="large"  @click="okEvent">{{current.btnText}}</i-utton>
+                </div>
+			</Modal>
+		</div>
+	</body>
+	<script type="text/javascript">
+		let vueApp = new Vue({
+			el: '#app',
+			data: function() {
+				return {
+					name: '',
+					confirmTitle: 'Can I have your name ?',
+					modal: false,
+					current: {
+						title: '我是一个正经的标题',
+						message: '你以为你写的名字有用？你错了',
+						btnText: '确定'
+					},
+					messageIndex: 0,
+					messages: dialogMessage
+				}
+			},
+			methods: {
+				okEvent: function(){
+					console.log(this.name)
+					if(this.messageIndex==this.messages.length){
+						this.modal = false;
+						document.body.className = "imageClass";
+					}else{
+						let temp = this.messages[this.messageIndex];
+						if(temp.message.indexOf("USER_NAME")!=-1){
+							temp.message = temp.message.replace(/USER_NAME/,this.name);
+						}
+						this.current  = temp;
+					}
+					this.messageIndex++;
+				},
+				showConfirm: function() {
+					let that = this;
+					this.$Modal.confirm({
+						render: (h) => {
+							return h('Input', {
+								props: {
+									value: this.value,
+									autofocus: true,
+									placeholder: 'Please enter your name...',
+									style: 'width:50%'
+								},
+								on: {
+									input: (val) => {
+										console.log(val)
+										that.name = val;
+									}
+								}
+							})
+						},
+						title: that.confirmTitle,
+						scrollable: false,
+						closable: false,
+						onOk: function() {
+							if(that.name.length==0){
+								that.confirmTitle = "能不能真诚的留下你的芳名";
+								setTimeout(function(){
+									that.showConfirm();
+								},500)
+							}else{
+								setTimeout(function(){
+									that.modal = true;
+								},600)
+							}
+						},
+						onCancel: function() {
+							console.log()
+							that.confirmTitle = "我老大不让你取消，好好写";
+							setTimeout(function(){
+								that.showConfirm();
+							},500)
+						}
+					})
+				}
+			},
+			mounted: function() { //创建时
+				this.showConfirm();
+			}
+		});
+	</script>
+</html>
+
